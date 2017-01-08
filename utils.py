@@ -1,4 +1,5 @@
 import re
+import timeit
 
 #used_dict = ['linuxwords', 'eng_com.dic', 'Ise.dic']
 
@@ -17,7 +18,7 @@ def mergedicts(initial_dicts, target_dict):
             target.write(line)
 
 
-def checkdict(target_str, target_dict = used_dict):
+def checkdict(target_str, target_dict):
     """
     check whether a string exists in the dictionary
     """
@@ -32,23 +33,43 @@ def checkdict(target_str, target_dict = used_dict):
     
     return False
     
-def checkdictstart(str):
-    """
-    check whether there's a word that starts with string
-    """
-
     
-def check_wild_card(str):
+def match(query_strs, used_dict):
     """
     wildcard lookup
     """
+    result_set = []
+
+    query = '|'.join([x for x in query_strs])
+    #print query
+
+    try:
+        with open(used_dict, 'r') as target_dict:
+            result_set.append(re.findall(query, target_dict.read(),re.IGNORECASE))
+
+    except IOError:
+        print 'File not Found.'
+        return None
+    
+    return result_set
+
+def seq_match(query_strs, used_dict):
+    pass
     
 def parse_string(oldstr, all, rge = '.'):
     """
-    parse a string for regex search
+    wildcard search
     """
-    
-    return 
+    pass 
 
 if __name__ == '__main__':
-#    mergedicts(used_dict, 'merged_dicts')
+    #print timeit.timeit("match([r'(\\b[Ab]aron\\b)(\\bThom[asdfsaw][sbf]\\b)'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)
+
+    #print timeit.timeit("match([r'\\bThom[asdfsaw][sbf]\\b'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)
+
+    print match([r'\bThom[asdfsw][sbf]\b', r'\b[Ab]aron\b'], 'merged_dicts')
+    print timeit.timeit("match([r'\\bThom[asdfsw][sbf]\\b', r'\\b[Ab]aron\\b'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)
+
+    print timeit.timeit("match([r'\\b[Ab]aron\\b'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)
+    
+    print timeit.timeit("match([r'\\bThom[asdfsw][sbf]\\b'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)

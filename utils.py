@@ -41,6 +41,9 @@ def match(query_strs, used_dict):
     wildcard lookup
     """
     result_set = []
+    
+    if not isinstance(query_strs, list):
+        query_strs = [query_strs]
 
     query = '|'.join([x for x in query_strs])
     #print query
@@ -101,7 +104,7 @@ class word_puzzle(object):
 
 if __name__ == '__main__':
     pz = word_puzzle('t?o?as',subs = ['hdfjs','asdmfsa'])
-    qstrs = [parse_query(pz)]
+    qstrs = parse_query(pz)
     print match(qstrs, 'merged_dict')
 
     anags = anagram(pz)

@@ -1,5 +1,7 @@
 import re
 import timeit
+import itertools
+
 
 #used_dict = ['linuxwords', 'eng_com.dic', 'Ise.dic']
 
@@ -45,7 +47,7 @@ def match(query_strs, used_dict):
 
     try:
         with open(used_dict, 'r') as target_dict:
-            result_set.append(re.findall(query, target_dict.read(),re.IGNORECASE))
+            result_set = re.findall(query, target_dict.read(),re.IGNORECASE)
 
     except IOError:
         print 'File not Found.'
@@ -53,23 +55,62 @@ def match(query_strs, used_dict):
     
     return result_set
 
-def seq_match(query_strs, used_dict):
-    pass
+def parse_query(wp):
+    return r'\b{0}\b'.format(''.join(wp.modular_qstr))
+
+
+
+def anagram(wp):
+    """
+    from one word puzzle object
+    create anagram word puzzle objects of it
+    """
+    wp_list = [word_puzzle(list(x), modq = True) for x in itertools.permutations(wp.modular_qstr)]
+    wp_list.sort(key = lambda x: x.modular_qstr)
+    return wp_list
+
+
+class word_puzzle(object):
     
-def parse_string(oldstr, all, rge = '.'):
-    """
-    wildcard search
-    """
-    pass 
+    def __init__(self, query, subs= [], modq = False):
+        
+        if modq:
+            self.modular_qstr = query
+            self.qstr = ''
+
+        # if a query string is supplied
+        # in the form of ??fsa??fooab?
+        
+        else:
+            self.qstr = query
+            if query == '':
+                raise ValueError('Please supply a query.')
+            # decompose it
+            elif subs == []:
+                self.modular_qstr = ['.' if x == '?' else x for x in self.qstr]
+            elif self.qstr.count('?') != len(subs):
+                raise ValueError('Incorrect number of substitutions.')
+            else:
+                newsubs = [''.join(sorted(list(set(x)))) for x in subs]
+                sub_iter = iter(newsubs)
+                self.modular_qstr = ['[{}]'.format(sub_iter.next()) if x == '?' else x for x in self.qstr]
+        
+        #print self.modular_qstr
+
+        
 
 if __name__ == '__main__':
-    #print timeit.timeit("match([r'(\\b[Ab]aron\\b)(\\bThom[asdfsaw][sbf]\\b)'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)
+    pz = word_puzzle('t?o?as',subs = ['hdfjs','asdmfsa'])
+    qstrs = [parse_query(pz)]
+    print match(qstrs, 'merged_dict')
 
-    #print timeit.timeit("match([r'\\bThom[asdfsaw][sbf]\\b'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)
+    anags = anagram(pz)
+    qstrs = [parse_query(anag) for anag in anags]
+    #print qstrs
+    print match(qstrs, 'merged_dict')
 
-    print match([r'\bThom[asdfsw][sbf]\b', r'\b[Ab]aron\b'], 'merged_dicts')
-    print timeit.timeit("match([r'\\bThom[asdfsw][sbf]\\b', r'\\b[Ab]aron\\b'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)
+    #print timeit.timeit("match([r'\\bThom[asdfsw][sbf]\\b', r'\\b[Ab]aron\\b'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)
 
-    print timeit.timeit("match([r'\\b[Ab]aron\\b'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)
+    #print timeit.timeit("match([r'\\b[Ab]aron\\b'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)
     
-    print timeit.timeit("match([r'\\bThom[asdfsw][sbf]\\b'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)
+    #print timeit.timeit("match([r'\\bThom[asdfsw][sbf]\\b'], 'merged_dicts')", setup = 'from __main__ import match', number = 100)

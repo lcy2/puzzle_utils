@@ -2,25 +2,13 @@ import re
 import timeit
 import itertools
 
-def checkdict(target_str, target_dict):
-    """
-    check whether a string exists in the dictionary
-    """
-    for chosen_dict in target_dict:
-        try:
-            with open(chosen_dict) as fdict:
-                #print re.search(string, fdict.read()).group(0)
-                if re.search(r'\b%s\b' % target_str, fdict.read()) != None:
-                    return True
-        except IOError:
-            continue
+default_dict = 'merged_dict'
     
-    return False
-    
-    
-def match(query_strs, used_dict):
+def match(query_strs, used_dict = default_dict):
     """
     wildcard lookup
+    query_strs: a formatted RE string
+    used_dict: which dictionary to use
     """
     result_set = []
     
@@ -41,6 +29,10 @@ def match(query_strs, used_dict):
     return result_set
 
 def parse_query(wp):
+    """
+    make a query string RE compatible
+    wp: a word puzzle object
+    """
     return r'\b{0}\b'.format(''.join(wp.modular_qstr))
 
 
@@ -49,15 +41,26 @@ def anagram(wp):
     """
     from one word puzzle object
     create anagram word puzzle objects of it
+    wp: word puzzle object
     """
     wp_list = [word_puzzle(list(x), modq = True) for x in itertools.permutations(wp.modular_qstr)]
     wp_list.sort(key = lambda x: x.modular_qstr)
     return wp_list
 
 
+def startswith(wp):
+    pass
+
+def endswith(wp):
+    pass
+
+def caesar():
+    pass
+
+
 class word_puzzle(object):
     
-    def __init__(self, query, subs= [], modq = False):
+    def __init__(self, query, subs= [], modq = False, charspace = '.'):
         
         if modq:
             self.modular_qstr = query
@@ -76,16 +79,23 @@ class word_puzzle(object):
             elif self.qstr.count('?') != len(subs):
                 raise ValueError('Incorrect number of substitutions.')
             else:
-                newsubs = [''.join(sorted(list(set(x)))) for x in subs]
+
+                #apply the charspace to all '.'s
+                if charspace != '.':
+                    charspace = '[' + charspace + ']'
+
+                # format this properly
+                newsubs = ['[' + ''.join(sorted(list(set(x)))) + ']' if x != '.' else charspace for x in subs]
+
                 sub_iter = iter(newsubs)
-                self.modular_qstr = ['[{}]'.format(sub_iter.next()) if x == '?' else x for x in self.qstr]
+                self.modular_qstr = [sub_iter.next() if x == '?' else x for x in self.qstr]
         
         #print self.modular_qstr
 
         
 
 if __name__ == '__main__':
-    pz = word_puzzle('t?o?as',subs = ['hdfjs','asdmfsa'])
+    pz = word_puzzle('t?o?as',subs = ['.','.'], charspace = 'thm')
     qstrs = parse_query(pz)
     print match(qstrs, 'merged_dict')
 

@@ -17,3 +17,8 @@ echo -n "2. "
 git config --global user.name "lcy2"
 git config --global user.email "lichangyi888@hotmail.com"
 echo "git config set."
+
+# turn on sound for Kali
+echo -n "3. "
+systemctl --user enable pulseaudio && systemctl --user start pulseaudio
+echo "sound turned on"

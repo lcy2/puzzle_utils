@@ -22,3 +22,10 @@ echo "git config set."
 echo -n "3. "
 systemctl --user enable pulseaudio && systemctl --user start pulseaudio
 echo "sound turned on"
+
+# download Heroku
+echo -n "3. "
+wget https://cli-assets.heroku.com/branches/stable/heroku-linux-amd64.tar.gz -O heroku.tar.gz
+tar -xvzf heroku.tar.gz -C /usr/local/lib
+/usr/local/lib/heroku/install
+echo "installed Heroku command line utility."
